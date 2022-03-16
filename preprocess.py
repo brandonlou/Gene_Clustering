@@ -1,9 +1,10 @@
 import csv
+import math
 import numpy as np
 import pickle
 import sys
 
-times = [0, 9.5, 11.5, 13.5, 15.5, 18.5, 20.5] # In hours
+times = [0, 9.5, 11.5, 13.5, 15.5, 18.5, 20.5] # Hours
 
 
 def extrapolate_first(y0, y1):
@@ -28,6 +29,10 @@ def extrapolate_last(y0, y1):
     x1 = times[-2]
     y = y0 + (x - x0) / (x1 - x0) * (y1 - y0)
     return y
+
+
+def log_fold_change(this_pt, first_pt):
+    return math.log2(this_pt / first_pt)
 
 
 def main():
@@ -78,8 +83,15 @@ def main():
 
             matrix.append(line)
 
-    # TODO: normalize? using log fold change (see slides)?
+    # Normalize
+    for row in matrix:
+        for i in range(len(row)):
+            try:
+                row[i] = log_fold_change(row[i], row[0])
+            except: # Handle division by zero
+                break
 
+    # Save preprocessed data
     with open(sys.argv[2], 'wb') as file:
         pickle.dump(matrix, file)
         
