@@ -4,9 +4,10 @@ import pickle
 import random
 import sys
 
-NUM_CLUSTERS = 2
-MAX_ITER = 500
-THRESHOLD = 0.01
+NUM_CLUSTERS = 3
+MAX_ITER = 300
+MAX_ATTEMPTS = 10
+THRESHOLD = 0.0001
 
 
 def get_min_max(matrix):
@@ -65,6 +66,18 @@ def m_step(clusters):
     return new_centers
 
 
+def get_squared_error_distortion(centers, clusters):
+    n = 0
+    total = 0
+    for i, cluster in enumerate(clusters):
+        n += len(clusters)
+        for point in cluster:
+            total += math.dist(point, centers[i])**2
+    total /= n
+    return total
+
+
+# Compute within sum of squares given a list of clusters
 def get_wss(clusters):
     wss = 0
     for cluster in clusters:
@@ -74,7 +87,6 @@ def get_wss(clusters):
                 dist_sum += math.dist(point1, point2)
         normalized_sum = dist_sum / (2 * len(cluster))
         wss += normalized_sum
-
     return wss
 
 
@@ -88,27 +100,47 @@ def main():
     min_element, max_element = get_min_max(data)
     dim = len(data[0])
 
-    # Initialize centers
-    centers = []
-    cog = get_cog(data)
-    for _ in range(NUM_CLUSTERS):
-        pt = copy.copy(cog)
-        for i in range(dim):
-            pt[i] += random.uniform(-0.1, 0.1)
-        centers.append(pt)
-    
-    for i in range(MAX_ITER):
-        clusters = e_step(data, centers)
-        centers = m_step(clusters)
-        #if diff < THRESHOLD:
-        #     break
-        #prev_wss = wss
-    
-    with open(sys.argv[2], 'wb') as file:
-        pickle.dump(clusters, file)
+    best_clusters = None
+    smallest_distortion = sys.maxsize
 
+    # Run k-means a given number of times and keep the best clusters
+    for attempt_num in range(MAX_ATTEMPTS):
+        prev_distortion = sys.maxsize
+
+        # Initialize centers by choosing random data points
+        centers = set()
+        while len(centers) < NUM_CLUSTERS:
+            i = random.randint(0, len(data) - 1)
+            centers.add(tuple(data[i]))
+        centers = list(centers)
+        
+        # Run the e and m step up to a maximum number of times
+        for iter_num in range(MAX_ITER):
+            clusters = e_step(data, centers)
+            centers = m_step(clusters)
+            distortion = get_squared_error_distortion(centers, clusters)
+
+            print(f'Attempt: {attempt_num + 1}, Iteration: {iter_num + 1}, distortion = {distortion}')
+
+            # If the difference between distortions is lower than a threshold, k-means has converged
+            if abs(distortion - prev_distortion) < THRESHOLD:
+                prev_distortion = distortion
+                break
+            else:
+                prev_distortion = distortion
+
+        # If this instance of clustering is better, save it
+        if prev_distortion < smallest_distortion:
+            smallest_distortion = prev_distortion
+            best_clusters = clusters
+
+
+    with open(sys.argv[2], 'wb') as file:
+        pickle.dump(best_clusters, file)
+
+    wss = get_wss(best_clusters)
     print(f'k = {NUM_CLUSTERS}')
-    print(f'wss = {get_wss(clusters)}')
+    print(f'wss = {wss}')
 
 
 if __name__ == '__main__':
