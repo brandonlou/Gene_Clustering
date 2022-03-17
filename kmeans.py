@@ -4,28 +4,10 @@ import pickle
 import random
 import sys
 
-NUM_CLUSTERS = 3
+NUM_CLUSTERS = 7
 MAX_ITER = 300
 MAX_ATTEMPTS = 10
 THRESHOLD = 0.0001
-
-
-def get_min_max(matrix):
-    min_element = matrix[0][0]
-    max_element = matrix[0][0]
-    for row in matrix:
-        for element in row:
-            min_element = min(element, min_element)
-            max_element = max(element, max_element)
-    return min_element, max_element
-
-
-def random_point(min_val, max_val, dim):
-    point = []
-    for _ in range(dim):
-        num = random.uniform(min_val, max_val)
-        point.append(num)
-    return point
 
 
 # Compute center of gravity
@@ -82,10 +64,10 @@ def get_wss(clusters):
     wss = 0
     for cluster in clusters:
         dist_sum = 0
-        for point1 in cluster:
-            for point2 in cluster:
-                dist_sum += math.dist(point1, point2)
-        normalized_sum = dist_sum / (2 * len(cluster))
+        for i in range(len(cluster) - 1):
+            for j in range(i + 1, len(cluster)):
+                dist_sum += math.dist(cluster[i], cluster[j])
+        normalized_sum = dist_sum / len(cluster)
         wss += normalized_sum
     return wss
 
@@ -96,9 +78,6 @@ def main():
 
     with open(sys.argv[1], 'rb') as file:
         data = pickle.load(file)
-
-    min_element, max_element = get_min_max(data)
-    dim = len(data[0])
 
     best_clusters = None
     smallest_distortion = sys.maxsize
@@ -134,13 +113,15 @@ def main():
             smallest_distortion = prev_distortion
             best_clusters = clusters
 
+    print('Data:', len(data))
+    for i in range(len(best_clusters)):
+        print(f'Cluster {i}: {len(best_clusters[i])}')
 
     with open(sys.argv[2], 'wb') as file:
         pickle.dump(best_clusters, file)
 
     wss = get_wss(best_clusters)
-    print(f'k = {NUM_CLUSTERS}')
-    print(f'wss = {wss}')
+    print(f'k = {NUM_CLUSTERS}, W_k = {wss}')
 
 
 if __name__ == '__main__':
