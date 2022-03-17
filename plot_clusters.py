@@ -1,29 +1,56 @@
 import matplotlib.pyplot as plt
 import pickle
 import sys
+from kmeans import get_cog
 
-x_data = [0, 9.5, 11.5, 13.5, 15.5, 18.5, 20.5]
+plt.rcParams['font.family'] = 'Times New Roman'
 
-# TODO: Separate plots? Or all in one go
+X = [0, 9.5, 11.5, 13.5, 15.5, 18.5, 20.5]
+
+
 def main():
-    if len(sys.argv) != 2:
-        sys.exit(f'Usage: python3 {sys.argv[0]} <clusters-file>')
+    fig, ax = plt.subplots(1, 4, figsize=(15, 4))
+    fig.tight_layout(pad=2)
 
-    with open(sys.argv[1], 'rb') as file:
+    with open('cluster2_kmeans.pkl', 'rb') as file:
         clusters = pickle.load(file)
+    cmap = plt.cm.get_cmap('hsv', len(clusters) + 1)
+    for i in range(len(clusters)):
+        y = get_cog(clusters[i])
+        ax[0].plot(X, y, c=cmap(i))
+    ax[0].set_title('k-means, k = 2')
+    ax[0].set_xlabel('Time (hours)')
+    ax[0].set_ylabel('Gene expression level')
 
-    num_clusters = len(clusters)
-    cmap = plt.cm.get_cmap('hsv', num_clusters + 1)
+    with open('cluster2_gmm.pkl', 'rb') as file:
+        clusters = pickle.load(file)
+    cmap = plt.cm.get_cmap('hsv', len(clusters) + 1)
+    for i in range(len(clusters)):
+        y = get_cog(clusters[i])
+        ax[1].plot(X, y, c=cmap(i))
+    ax[1].set_title('GMM, k = 2')
+    ax[1].set_xlabel('Time (hours)')
 
-    for i, cluster in enumerate(clusters):
-        for y_data in cluster:
-            plt.subplot(num_clusters, 1, i + 1)
-            plt.plot(x_data, y_data, c=cmap(i))
-            plt.title(f'Cluster {i + 1}')
+    with open('cluster7_kmeans.pkl', 'rb') as file:
+        clusters = pickle.load(file)
+    cmap = plt.cm.get_cmap('hsv', len(clusters) + 1)
+    for i in range(len(clusters)):
+        y = get_cog(clusters[i])
+        ax[2].plot(X, y, c=cmap(i))
+    ax[2].set_title('k-means, k = 7')
+    ax[2].set_xlabel('Time (hours)')
 
-    plt.suptitle('Gene expression levels over time')
-    #plt.xlabel('Time (hours)')
-    #plt.ylabel('Expression Level')
+    with open('cluster7_gmm.pkl', 'rb') as file:
+        clusters = pickle.load(file)
+    cmap = plt.cm.get_cmap('hsv', len(clusters) + 1)
+    for i in range(len(clusters)):
+        y = get_cog(clusters[i])
+        ax[3].plot(X, y, c=cmap(i))
+    ax[3].set_title('GMM, k = 7')
+    ax[3].set_xlabel('Time (hours)')
+    
+    fig.savefig('clusters.png', dpi=300, bbox_inches='tight')
+
     plt.show()
 
 
