@@ -5,7 +5,7 @@
 1. Preprocess the data by running `python3 preprocess.py yeast.tsv data.pkl`
 2. Cluster using k-means by running `python3 kmeans.py data.pkl clusters.pkl` \
     a. Change k in `kmeans.py`
-3. Cluster using Gaussian mixture model by running `python3 gmm.py data.pkl clusters.pkl`
+3. Cluster using Gaussian mixture model by running `python3 gmm.py data.pkl clusters.pkl` \
     a. Change k in `gmm.py`
 4. Plot within sum of squares by running `python3 plot_wss.py`\
     a. Change wss values in `plot_wss.py`
