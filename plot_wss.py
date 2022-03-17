@@ -20,10 +20,9 @@ def main():
     ax[1].set_xlabel(r'$k$')
     ax[1].set_ylabel(r'$W_k$')
 
-#    plt.show()
-
     plt.savefig('wss.png', dpi=300, bbox_inches='tight')
 
+    plt.show()
 
 if __name__ == '__main__':
     main()

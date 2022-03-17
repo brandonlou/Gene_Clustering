@@ -4,7 +4,7 @@ import pickle
 import random
 import sys
 
-NUM_CLUSTERS = 7
+NUM_CLUSTERS = 2
 MAX_ITER = 300
 MAX_ATTEMPTS = 10
 THRESHOLD = 0.0001
@@ -78,7 +78,8 @@ def main():
 
     with open(sys.argv[1], 'rb') as file:
         data = pickle.load(file)
-
+    print(len(data))
+    exit()
     best_clusters = None
     smallest_distortion = sys.maxsize
 
@@ -92,7 +93,7 @@ def main():
             i = random.randint(0, len(data) - 1)
             centers.add(tuple(data[i]))
         centers = list(centers)
-        
+
         # Run the e and m step up to a maximum number of times
         for iter_num in range(MAX_ITER):
             clusters = e_step(data, centers)

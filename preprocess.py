@@ -17,7 +17,7 @@ def main():
     with open(sys.argv[1], 'rt') as file:
         next(file) # Skip first line
         tsv_file = csv.reader(file, delimiter='\t')
-    
+
         for line in tsv_file:
             line = line[1:] # Skip first value of every line
             # Convert values from strings to floats (and NaN)
@@ -27,14 +27,14 @@ def main():
                 else:
                     line[i] = float(line[i])
             line = pd.Series(data=line, index=times)
-            
+
             # Interpolate and extrapolate missing values
             try:
                 line = line.interpolate(method='slinear', fill_value='extrapolate', limit_direction='both')
             except:
                 print(f'Removing {line.values}')
                 continue
-        
+
             # Skip any data points with NaN
             if True in np.isnan(line.values):
                 print(f'Removing {line.values}')
@@ -42,7 +42,7 @@ def main():
 
             matrix.append(line.values)
 
-    """    
+    """
     for i in range(len(matrix)):
         matrix[i] = matrix[i] + 1            # Add constant to every number to avoid dividing by 0
         matrix[i] = matrix[i] / matrix[i][0] # Normalize to first data point
@@ -54,7 +54,7 @@ def main():
         pickle.dump(matrix, file)
 
     print('Done.')
-        
+
 
 if __name__ == '__main__':
     main()

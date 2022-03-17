@@ -48,7 +48,7 @@ def main():
         ax[3].plot(X, y, c=cmap(i))
     ax[3].set_title('GMM, k = 7')
     ax[3].set_xlabel('Time (hours)')
-    
+
     fig.savefig('clusters.png', dpi=300, bbox_inches='tight')
 
     plt.show()

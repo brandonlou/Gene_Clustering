@@ -3,7 +3,7 @@ import sys
 from sklearn.mixture import GaussianMixture
 from kmeans import get_wss
 
-NUM_CLUSTERS = 7
+NUM_CLUSTERS = 2
 
 
 def main():
@@ -23,8 +23,8 @@ def main():
     for i, label in enumerate(labels):
         clusters[label].append(data[i])
 
-    #wss = get_wss(clusters)
-    #print(f'k = {NUM_CLUSTERS}, W_k = {wss}')
+    wss = get_wss(clusters)
+    print(f'k = {NUM_CLUSTERS}, W_k = {wss}')
 
     with open(sys.argv[2], 'wb') as file:
         pickle.dump(clusters, file)
